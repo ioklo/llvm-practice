@@ -16,8 +16,8 @@
 #include <llvm/Support/InitLLVM.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetSelect.h>
 
-// #include <llvm/AsmParser/Parser.h>
 #include <iostream>
 
 using namespace llvm;
@@ -32,7 +32,7 @@ int Execute(LLJIT& jit, unique_ptr<Module> module, unique_ptr<LLVMContext> conte
         return 1;
     }
 
-    // main ÇÔ¼ö Ã£°í È£Ãâ
+    // main í•¨ìˆ˜ ì°¾ê³  í˜¸ì¶œ
     auto mainSym = jit.lookup("main");
     if (!mainSym) {
         llvm::errs() << "main not found: " << toString(mainSym.takeError()) << "\n";
@@ -50,14 +50,14 @@ void DeclareFuncs(Module& module, LLVMContext& context)
     auto* ptrTy = PointerType::get(context, 0);
     auto* int32Ty = Type::getInt32Ty(context);
 
-    // 2. ÇÔ¼ö Å¸ÀÔ »ı¼º: i32 printf(ptr, ...)
+    // 2. í•¨ìˆ˜ íƒ€ì… ìƒì„±: i32 printf(ptr, ...)
     FunctionType* printfTy = FunctionType::get(
-        int32Ty,     // ¸®ÅÏ Å¸ÀÔ: i32
-        {ptrTy},     // °íÁ¤ ÀÎÀÚ: ptr
-        true                           // °¡º¯ ÀÎÀÚ ÇÔ¼ö
+        int32Ty,     // ë¦¬í„´ íƒ€ì…: i32
+        {ptrTy},     // ê³ ì • ì¸ì: ptr
+        true                           // ê°€ë³€ ì¸ì í•¨ìˆ˜
     );
 
-    // 3. ¸ğµâ¿¡ ÇÔ¼ö ¼±¾ğ »ğÀÔ
+    // 3. ëª¨ë“ˆì— í•¨ìˆ˜ ì„ ì–¸ ì‚½ì…
     FunctionCallee printfFunc = module.getOrInsertFunction("printf", printfTy);
 }
 
@@ -65,7 +65,7 @@ void BuildMyFunc(Module& module, LLVMContext& context)
 {
     auto* int32Ty = Type::getInt32Ty(context);
 
-    // int -> int Å¸ÀÔÀ¸·Î ¸¸µé¾î º¸ÀÚ
+    // int -> int íƒ€ì…ìœ¼ë¡œ ë§Œë“¤ì–´ ë³´ì
     auto* funcType = FunctionType::get(int32Ty, {int32Ty}, false);
     auto* func = Function::Create(funcType, Function::ExternalLinkage, "my_func", module);
 
@@ -96,7 +96,7 @@ void BuildMain(Module& module, LLVMContext& context)
     auto* c = ConstantInt::get(int32Ty, 22);
     auto* result = builder.CreateCall(my_func, {c});
 
-    // print¸¦ ¾î¶»°Ô ÇÏ³ª¿ä
+    // printë¥¼ ì–´ë–»ê²Œ í•˜ë‚˜ìš”
     auto* printf_func = module.getFunction("printf");
 
     auto* text = builder.CreateGlobalString("%d\\n");
@@ -107,11 +107,12 @@ void BuildMain(Module& module, LLVMContext& context)
 
 int main(int argc, char* argv[])
 {
-    // ÃÊ±âÈ­
+    // ì´ˆê¸°í™”
     InitLLVM X(argc, argv);
     InitializeNativeTarget();
     InitializeNativeTargetAsmPrinter();
-    
+    //InitializeNativeTargetInfo();
+    //LLVMInitializeAArch64TargetInfo();
     
     unique_ptr<LLVMContext> context = make_unique<LLVMContext>();
     unique_ptr<Module> module = make_unique<Module>("MyModule", *context);
@@ -154,7 +155,7 @@ int main(int argc, char* argv[])
 
     // auto err = jd.define(llvm::orc::absoluteSymbols(m));
     
-    int result = Execute(*jit, move(module), move(context));
+    int result = Execute(*jit, std::move(module), std::move(context));
 
     std::cout << "main() returned " << result << std::endl;
     return 0;

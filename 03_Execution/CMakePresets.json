@@ -1,0 +1,30 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "DebugBase",
+      "hidden": false,
+      "generator": "Ninja",
+      "description": "Use this for debugging",
+      "binaryDir": "${sourceDir}/Build/Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ReleaseBase",
+      "hidden": false,
+      "generator": "Ninja",
+      "description": "Use this for release",
+      "binaryDir": "${sourceDir}/Build/Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ]
+}

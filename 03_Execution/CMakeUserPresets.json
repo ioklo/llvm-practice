@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "Debug",
+      "inherits": "DebugBase",
+      "cacheVariables": {
+        "LLVM_DIR": "/Users/ioklo/local/llvm-20.1.5-RelWithDebInfo-DyLib/lib/cmake/llvm"
+      }
+    }
+  ]
+}
